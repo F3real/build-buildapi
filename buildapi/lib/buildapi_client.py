@@ -22,7 +22,7 @@ from mozci.utils.transfer import path_to_file
 from mozci.sources import pushlog
 
 HOST_ROOT = 'https://secure.pub.build.mozilla.org/buildapi/self-serve'
-LOG = logging.getLogger('mozci')
+LOG = logging.getLogger("buildapi_client")
 REPOSITORIES_FILE = path_to_file("repositories.txt")
 REPOSITORIES = {}
 VALIDATE = True
