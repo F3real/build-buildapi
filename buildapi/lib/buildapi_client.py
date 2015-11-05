@@ -16,15 +16,9 @@ import os
 
 import requests
 
-from mozci.utils.authentication import get_credentials, remove_credentials
-from mozci.utils.transfer import path_to_file
-from mozci.sources import pushlog
-
 HOST_ROOT = 'https://secure.pub.build.mozilla.org/buildapi/self-serve'
 LOG = logging.getLogger("buildapi_client")
-REPOSITORIES_FILE = path_to_file("repositories.txt")
-REPOSITORIES = {}
-VALIDATE = True
+
 
 class BuildapiAuthError(Exception):
     pass
@@ -34,8 +28,7 @@ class BuildapiError(Exception):
     pass
 
 
-
-def trigger_arbitrary_job(repo_name, builder, revision, files=[], dry_run=False,
+def trigger_arbitrary_job(repo_name, builder, revision, auth, files=[], dry_run=False,
                           extra_properties=None):
     """
     Request buildapi to trigger a job for us.
@@ -57,10 +50,9 @@ def trigger_arbitrary_job(repo_name, builder, revision, files=[], dry_run=False,
         url,
         headers={'Accept': 'application/json'},
         data=payload,
-        auth=get_credentials()
+        auth
     )
     if req.status_code == 401:
-        remove_credentials()
         raise BuildapiAuthError("Your credentials were invalid. Please try again.")
 
     try:
@@ -73,7 +65,7 @@ def trigger_arbitrary_job(repo_name, builder, revision, files=[], dry_run=False,
         return None
 
 
-def make_retrigger_request(repo_name, request_id, count=1, priority=0, dry_run=True):
+def make_retrigger_request(repo_name, request_id, auth, count=1, priority=0, dry_run=True):
     """
     Retrigger a request using buildapi self-serve. Returns a request.
 
@@ -101,13 +93,13 @@ def make_retrigger_request(repo_name, request_id, count=1, priority=0, dry_run=T
         url,
         headers={'Accept': 'application/json'},
         data=payload,
-        auth=get_credentials()
+        auth
     )
     # TODO: add debug message with job_id URL.
     return req
 
 
-def make_cancel_request(repo_name, request_id, dry_run=True):
+def make_cancel_request(repo_name, request_id, auth, dry_run=True):
     """
     Cancel a request using buildapi self-serve. Returns a request.
 
@@ -120,7 +112,7 @@ def make_cancel_request(repo_name, request_id, dry_run=True):
         return None
 
     LOG.info("We're going to cancel the job at %s" % url)
-    req = requests.delete(url, auth=get_credentials())
+    req = requests.delete(url, auth)
     # TODO: add debug message with the canceled job_id URL. Find a way
     # to do that without doing an additional request.
     return req
