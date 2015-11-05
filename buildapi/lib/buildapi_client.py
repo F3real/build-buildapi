@@ -16,7 +16,6 @@ import os
 
 import requests
 
-from mozci.errors import BuildapiError, AuthenticationError
 from mozci.utils.authentication import get_credentials, remove_credentials
 from mozci.utils.transfer import path_to_file
 from mozci.sources import pushlog
@@ -27,6 +26,14 @@ REPOSITORIES_FILE = path_to_file("repositories.txt")
 REPOSITORIES = {}
 VALIDATE = True
 
+class BuildapiAuthError(Exception):
+    pass
+
+
+class BuildapiError(Exception):
+    pass
+
+
 
 def trigger_arbitrary_job(repo_name, builder, revision, files=[], dry_run=False,
                           extra_properties=None):
@@ -35,7 +42,7 @@ def trigger_arbitrary_job(repo_name, builder, revision, files=[], dry_run=False,
 
     We return the request or None if dry_run is True.
 
-    Raises AuthenticationError if credentials are invalid.
+    Raises BuildapiAuthError if credentials are invalid.
     """
     url = _builders_api_url(repo_name, builder, revision)
     payload = _payload(repo_name, revision, files, extra_properties)
@@ -54,7 +61,7 @@ def trigger_arbitrary_job(repo_name, builder, revision, files=[], dry_run=False,
     )
     if req.status_code == 401:
         remove_credentials()
-        raise AuthenticationError("Your credentials were invalid. Please try again.")
+        raise BuildapiAuthError("Your credentials were invalid. Please try again.")
 
     try:
         content = req.json()
@@ -217,7 +224,7 @@ def query_repositories(clobber=False):
             "repo_type": "hg"
         }
 
-    Raises an AuthenticationError if the user credentials are invalid.
+    Raises an BuildapiAuthError if the user credentials are invalid.
     """
     global REPOSITORIES
 
@@ -239,7 +246,7 @@ def query_repositories(clobber=False):
         req = requests.get(url, auth=get_credentials())
         if req.status_code == 401:
             remove_credentials()
-            raise AuthenticationError("Your credentials were invalid. Please try again.")
+            raise BuildapiAuthError("Your credentials were invalid. Please try again.")
 
         REPOSITORIES = req.json()
         with open(REPOSITORIES_FILE, "wb") as fd:
