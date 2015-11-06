@@ -112,7 +112,7 @@ def make_cancel_request(repo_name, request_id, auth, dry_run=True):
         return None
 
     LOG.info("We're going to cancel the job at %s" % url)
-    req = requests.delete(url, auth)
+    req = requests.delete(url, auth=auth)
     # TODO: add debug message with the canceled job_id URL. Find a way
     # to do that without doing an additional request.
     return req
