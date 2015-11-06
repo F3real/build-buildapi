@@ -50,7 +50,7 @@ def trigger_arbitrary_job(repo_name, builder, revision, auth, files=[], dry_run=
         url,
         headers={'Accept': 'application/json'},
         data=payload,
-        auth
+        auth=auth
     )
     if req.status_code == 401:
         raise BuildapiAuthError("Your credentials were invalid. Please try again.")
@@ -93,7 +93,7 @@ def make_retrigger_request(repo_name, request_id, auth, count=1, priority=0, dry
         url,
         headers={'Accept': 'application/json'},
         data=payload,
-        auth
+        auth=auth
     )
     # TODO: add debug message with job_id URL.
     return req
