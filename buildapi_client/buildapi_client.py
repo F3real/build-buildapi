@@ -150,3 +150,11 @@ def _payload(repo_name, revision, files=[], extra_properties=None):
         payload['files'] = json.dumps(files)
 
     return payload
+	
+def query_repositories(auth):
+    url = "%s/branches?format=json" % HOST_ROOT
+    LOG.debug("About to fetch %s" % url)
+    req = requests.get(url, auth=auth)
+    if req.status_code == 401:
+        raise BuildapiAuthError("Your credentials were invalid. Please try again.")
+	return req
