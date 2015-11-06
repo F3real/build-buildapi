@@ -157,4 +157,4 @@ def query_repositories(auth):
     req = requests.get(url, auth=auth)
     if req.status_code == 401:
         raise BuildapiAuthError("Your credentials were invalid. Please try again.")
-	return req
+    return req
