@@ -24,10 +24,6 @@ class BuildapiAuthError(Exception):
     pass
 
 
-class BuildapiError(Exception):
-    pass
-
-
 def trigger_arbitrary_job(repo_name, builder, revision, auth, files=[], dry_run=False,
                           extra_properties=None):
     """
@@ -151,7 +147,7 @@ def _payload(repo_name, revision, files=[], extra_properties=None):
 
     return payload
 	
-def query_repositories(auth):
+def make_query_repositories_request(auth):
     url = "%s/branches?format=json" % HOST_ROOT
     LOG.debug("About to fetch %s" % url)
     req = requests.get(url, auth=auth)
